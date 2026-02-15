@@ -10,10 +10,16 @@ let TARGET = "aarch64-none-none-elf"
 
 let package = Package(
   name: "SOS",
+  // Hint for you to see the language of pseudo target
+  defaultLocalization: "de",
   // it works also with .v15 and Swift 6.0 but I have both (Swift 6.2 and macOS Tahoe)
   platforms: [.macOS(.v26)],
+  dependencies: [
+    // other dependencies
+    .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),
+  ],
   targets: [
-    // Swift-only Target
+    // Swift-only target
     .target(
       name: "Kernel",
       path: "Sources/Kernel",
@@ -33,5 +39,11 @@ let package = Package(
         ]),
       ]
     ),
+    // Pseudo target to create a documentation
+/*    .target(
+      name: "SOS",
+      dependencies: [], // no dependency because no sources
+      swiftSettings: [], // overwrite Swift settings
+    )*/
   ]
 )

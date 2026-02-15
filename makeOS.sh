@@ -47,5 +47,12 @@ echo "STEP 4: start QEMU..."
 qemu-system-aarch64 -M virt -cpu cortex-a57 \
     -nographic -serial mon:stdio \
     -kernel .build/kernel.elf
-    
+
+# optional but comment in the target
+#echo "STEP 5: create documentation ..."
+#swift package plugin generate-documentation --transform-for-static-hosting --emit-digest --target SOS
+
+#optional import generated documentation in XCode
+#open .build/plugins/Swift-DocC/outputs/SOS.doccarchive
+
 #EOF

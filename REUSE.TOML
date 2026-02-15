@@ -1,0 +1,36 @@
+version=1
+
+# SPDX-License-Identifier: 0BSD
+# SPDX-FileCopyrightText: © 2026 Sebastian Ritter
+
+# Verzeichnisse, die vom Linting ausgeschlossen werden sollen
+[[annotations]]
+path = [
+  "DerivedData/**",
+  ".swiftpm/**",
+  "build/**",
+  ".build/**",
+  "**/*.xcuserdatad/**",
+  "**/*.xcscmblueprint/**",
+  "**/*.xccheckout/**",
+  ".DS_Store",
+]
+ignore = true
+
+[[annotations]]
+path = "SOSutils.png"
+precedence = "closest"
+SPDX-FileCopyrightText = "© 2026 Sebastian Ritter"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = "Sources/SOS/Documentation.docc/**"
+precedence = "closest"
+SPDX-FileCopyrightText = "© 2026 Sebastian Ritter"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = "Package.resolved"
+precedence = "closest"
+SPDX-FileCopyrightText = "© 2026 Sebastian Ritter"
+SPDX-License-Identifier = "0BSD"
