@@ -49,10 +49,15 @@ qemu-system-aarch64 -M virt -cpu cortex-a57 \
     -kernel .build/kernel.elf
 
 # optional but comment in the target
-#echo "STEP 5: create documentation ..."
-#swift package plugin generate-documentation --transform-for-static-hosting --emit-digest --target SOS
+echo "STEP 5: create documentation ..."
+cp Package.swift .build/
+sed -i '' '/^\/\*START/d; /^END\*\//d' Package.swift
+swift package plugin generate-documentation --transform-for-static-hosting --emit-digest --target SOS
+cp .build/Package.swift .
 
-#optional import generated documentation in XCode
+#optional import generated documentation in XCode - remove existing import before
 #open .build/plugins/Swift-DocC/outputs/SOS.doccarchive
+echo \*\*\* NOTE: import documentation with copy and execute next line \*\*\*
+echo open .build/plugins/Swift-DocC/outputs/SOS.doccarchive
 
 #EOF

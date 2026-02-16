@@ -12,5 +12,5 @@ Note, **Getting Started** is the (only) part that is written in more than one la
 
 ### Dokumentation
 
-- <doc:System>
+- <doc:System-de>
 - <doc:0000-IDR-Overview>

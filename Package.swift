@@ -40,10 +40,12 @@ let package = Package(
       ]
     ),
     // Pseudo target to create a documentation
-/*    .target(
+/*START
+    .target(
       name: "SOS",
       dependencies: [], // no dependency because no sources
       swiftSettings: [], // overwrite Swift settings
-    )*/
+    )
+END*/
   ]
 )
