@@ -44,8 +44,8 @@ clang -target ${TARGET} \
 #llvm-objdump -d .build/kernel.elf | grep -A 20 "kmain"
 
 echo "STEP 4: start QEMU..."
-qemu-system-aarch64 -M virt -cpu cortex-a57 \
-    -nographic -serial mon:stdio \
+qemu-system-aarch64 -M raspi4b -cpu cortex-a72 \
+    -nographic -serial null -serial mon:stdio \
     -kernel .build/kernel.elf
 
 # optional but comment in the target

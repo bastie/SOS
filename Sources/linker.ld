@@ -7,7 +7,7 @@
 ENTRY(_start)
 
 SECTIONS {
-    . = 0x40000000; /* QEMU Startadresse */
+    . = 0x80000; /* Raspberry 4 Startaddres */
     .text : {
       /* KEEP = do not optimize; and do first the boot than all other code */
       KEEP(*(.text.boot)) *(.text .text.*)

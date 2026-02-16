@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: 0BSD
 // SPDX-FileCopyrightText: © 2026 Sebastian Ritter
 
+/// This is a helper function on Raspberry Pi 4 to do something like shutdown our system
+@_extern(c, "halt")
+func _halt()
+func haltSystem () -> Never {
+  _halt() // -> Never
+  while true {}
+}
+
 /// In ARM64 (AArch64) programming, this hvc (Hypervisor Call) instruction is used to request services of the hypervisor (Exception Level 2) from a lower level (usually EL1, the operating system kernel).
 @_extern(c, "arm_hvc_call")
 func armServiceOnExceptionLevel2(_ functionID: UInt32)
@@ -52,14 +60,14 @@ func print(content : StaticString, to : OutputTarget = .UART) {
 /// - Parameter byte to write on UART
 @inline(__always)
 func writeUART(_ byte: UInt8) {
-  let uartBase: UInt = 0x09000000
-  let dataReg = UnsafeMutableRawPointer(bitPattern: uartBase)!
-  let flagReg = UnsafeMutableRawPointer(bitPattern: uartBase + 0x18)!
+  let uartBase: UInt = 0xFE215000
+  let dataReg = UnsafeMutableRawPointer(bitPattern: uartBase + 0x40)!
+  let flagReg = UnsafeMutableRawPointer(bitPattern: uartBase + 0x54)!
   
   while true {
     let flags = flagReg.load(as: UInt32.self)
     llvmSideEffect() // 📢 Hey LLVM, do not make an optimize with delete my kernel
-    if (flags & 0x20) == 0 {
+    if (flags & 0x20) != 0 {  // in result of Bit 5 is set the TX is ready
       break
     }
   }
@@ -83,7 +91,7 @@ extension PowerAction {
   /// Type-save function to perform an `PowerAction`
   /// - Parameter action to perform
   static func perform(_ action: PowerAction) {
-    // from Kernel we need to ask ARM exception level 2 (hypervisor) do power management functions
-    armServiceOnExceptionLevel2 (action.rawValue)
+    // Raspberry Pi 4 hardware (and also raspi4b in QEMU) do not have PSCI, instead we use halt
+    haltSystem()
   }
 }
