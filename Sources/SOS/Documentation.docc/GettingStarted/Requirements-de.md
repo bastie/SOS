@@ -9,13 +9,12 @@ Welches System nutze ich?
   - zsh
 - homebrew
   - qemu
-- (Embedded) Swift 6.2
+- (Embedded) Swift 6.2 von **Swiftly**
   ```bash
   $swift --version
-  Apple Swift version 6.2 (swift-6.2-RELEASE)
+  Apple Swift version 6.2.3 (swift-6.2.3-RELEASE)
   Target: arm64-apple-macosx26.0
-  Build config: +assertions
-  ```
+  Build config: +assertions```
   - Swift Package Manager
 - clang
   ```bash

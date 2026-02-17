@@ -18,7 +18,7 @@ path = [
 ignore = true
 
 [[annotations]]
-path = "SOSutils.png"
+path = "SOS-logo.jpeg"
 precedence = "closest"
 SPDX-FileCopyrightText = "© 2026 Sebastian Ritter"
 SPDX-License-Identifier = "CC0-1.0"
@@ -31,6 +31,12 @@ SPDX-License-Identifier = "CC0-1.0"
 
 [[annotations]]
 path = "Package.resolved"
+precedence = "closest"
+SPDX-FileCopyrightText = "© 2026 Sebastian Ritter"
+SPDX-License-Identifier = "0BSD"
+
+[[annotations]]
+path = ".swift-version"
 precedence = "closest"
 SPDX-FileCopyrightText = "© 2026 Sebastian Ritter"
 SPDX-License-Identifier = "0BSD"

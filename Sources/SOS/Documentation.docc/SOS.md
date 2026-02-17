@@ -6,7 +6,7 @@
 
 ### Getting Started
 
-Note, **Getting Started** is the (only) part that is written in more than one language to help you lift up. The source code contains comments (too much comments) for Your eyes.
+Note, **Getting Started** is the (only) part that is written in more than one language to help you lift up. The source code contains english written comments (too much comments) for Your eyes.
 
 - <doc:GettingStarted>
 
