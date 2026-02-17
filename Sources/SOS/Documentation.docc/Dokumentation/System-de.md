@@ -41,4 +41,24 @@ Hinweis: Die Nutzung der in Xcode integrierten Toolchain ist nicht ausreichend. 
 |x86-64     - 64-bit X86: EM64T and AMD64|x86-64     - 64-bit X86: EM64T and AMD64|
 
 
+## Der Bootprozess
 
+Der Bootprozess des AArch64 Rechner beginnt zwingend damit, dass [in das Register x0 die Adresse zum Device Tree]  (https://trustedfirmware-a.readthedocs.io/en/stable/plat/arm/arm_fpga/index.html) gesichert werden muss. Der [Device Tree](https://www.devicetree.org/specifications/) ist eine Struktur, welche unsere Hardware beschreibt. Der Device Tree befindet sich als <div title="Binary Large Object>BLOB</> an der Adresse dort hinterlegten Adresse.
+Die AArch64 hat festgelegt, dass im Register x0 der Rückgabewert einer Funktion hinterlegt ist (hier also vereinfacht gesagt der Funktion zur Identifikation der Hardware). AArch64 erlaubt Funktionen [die Register x0 bis x15 ohne Rücksicht zu verwenden](https://developer.arm.com/documentation/102374/0103/Procedure-Call-Standard). Ab dem <div title="Callee-saved Registers">Register x19 bis x28</div> muss hingegen eine Funktion die Inhalte beim Verlassen wieder herstellen, die sie beim Aufruf dort vorfindet. Wir können nur direkt nach dem Aufruf (hier also direkt nach dem Boot) sicher sein, dass sich in dem Register x0 auch die Adresse des Device Tree befindet.
+Bevor wir in unseren Swift Kernel springen, müssen wir noch mindestens (und nicht nur) den Stack initialisieren. Daher müssen wir also den Wert aus Register x0 in einen Register x19 bis x28 sichern.
+Die Register x0 bis x7 sind zudem als Parameter- und Ergebnis-Register definiert. Implizit werden also bei unserem Aufruf des Kernels diese acht Parameter (meist 8 Adressen) übergeben. Wenn wir unseren gesicherten Wert also wieder nach x0 zurückschreiben ist dieser zugleich der erste Parameter. [Kompatibel mit Linux](https://www.kernel.org/doc/Documentation/arm64/booting.txt) sind wir, wenn wir vier Parameter übergeben. Die anderen drei Parameter sind dabei reserviert.
+*Für [RISC-V](https://www.kernel.org/doc/Documentation/riscv/boot.rst) wird hingegen im ersten Parameter die ID der CPU und im zweiten Parameter die Adresse des Device Tree bei Linux erwartet.*
+
+Wir müssen zudem noch beachten, dass viele moderne Systeme mehr als einen Kern haben. Wir schicken also alle anderen Kerne in den Wartemodus und lassen nach dem sichern unseres Zeigers auf den Device Tree Blob nur unseren ersten Kern weiter den Bootprozess durchlaufen. 
+
+## Der Kernel
+
+
+## See Also
+
+- [Tz. 7.3.5.1, Device Tree in x0 beim Boot](https://trustedfirmware-a.readthedocs.io/en/stable/plat/arm/arm_fpga/index.html)
+- [Device Tree Spezifikation](https://www.devicetree.org/specifications/)
+- [Linux Kernel AArch64 Bootinformationen](https://www.kernel.org/doc/Documentation/arm64/booting.txt)
+- [AArch64 Register bei Funktionsaufrufen](https://developer.arm.com/documentation/102374/0103/Procedure-Call-Standard)
+- [Arm Base Boot Requirements](https://developer.arm.com/documentation/den0044/latest/)
+- [AArch64 Exception Level](https://developer.arm.com/documentation/100069/0606/Overview-of-AArch64-state/Exception-levels?lang=en)

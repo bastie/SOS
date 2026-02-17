@@ -43,13 +43,18 @@ clang -target ${TARGET} \
 #echo "=== kmain disassembly ==="
 #llvm-objdump -d .build/kernel.elf | grep -A 20 "kmain"
 
-echo "STEP 4: start QEMU..."
+# create a flat kernel.bin
+echo "STEP 4: get flat kernel.bin"
+llvm-objcopy -O binary .build/kernel.elf .build/kernel.bin
+
+# with kernel.bin (not kernel.elf) qemu generate a Device Tree Blob and send it to our kernel
+echo "STEP 5: start QEMU..."
 qemu-system-aarch64 -M virt -cpu cortex-a57 \
     -nographic -serial mon:stdio \
-    -kernel .build/kernel.elf
+    -kernel .build/kernel.bin
 
-# optional but comment in the target
-echo "STEP 5: create documentation ..."
+# optional
+echo "STEP 6: create documentation ..."
 cp Package.swift .build/
 sed -i '' '/^\/\*START/d; /^END\*\//d' Package.swift
 swift package plugin generate-documentation --transform-for-static-hosting --emit-digest --target SOS

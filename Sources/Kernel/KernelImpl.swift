@@ -11,11 +11,31 @@ func llvmSideEffect()
 
 /// This is our **Swift** Kernel, called by boot process
 @_silgen_name("kmain")
-public func main() {
-  
+public func main(dtbPointer: UInt64,              // x0: adresse of Device Tree Blob
+                 _ reserved1: UInt64,             // x1: Reserviert (0)
+                 _ reserved2: UInt64,             // x2: Reserviert (0)
+                 _ reserved3: UInt64              // x3: Reserviert (0)
+) {
   // write SOS from Swift to see this parts run correctly - debuging is for loosers
   let output = StaticString(stringLiteral: " SOS Kernel\n")
   print(content: output)
+  
+  if 0 != dtbPointer{
+    // Dann erst als Pointer interpretieren
+    let ptr = UnsafeRawPointer(bitPattern: UInt(dtbPointer))!
+    // Verifizierung der Magic Number (Big Endian 0xd00dfeed)
+    let magic = ptr.load(as: UInt32.self).byteSwapped
+    if magic == 0xd00dfeed {
+      // Device Tree Header with magic value detected
+      print (content: "Device Tree found\n")
+    }
+    else {
+      print (content: "ERROR: DTB magic value not found\n")
+    }
+  }
+  else {
+    print(content: "WARN: DTB not initialize\n")
+  }
   
   // 🎶 Bye, bye baby - baby bye 🎶
   print (content: "Shutdown system!\n")
@@ -45,7 +65,6 @@ func print(content : StaticString, to : OutputTarget = .UART) {
     pointerToNextByte = pointerToNextByte.successor()
     isStringEndReached = pointerToNextByte.pointee != 0x0
   }
-  pointerToNextByte.deallocate()
 }
 
 /// This function write a single byte to the UART output

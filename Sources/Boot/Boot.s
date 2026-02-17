@@ -7,6 +7,23 @@
 
 // now let us define what behind the entry point declaration is
 _start:
+    // 0. All other than Core 0 need to sleep (Single-Core)
+    mrs x1, mpidr_el1
+    and x1, x1, #0xFF        // extract Core ID in register 1
+    cbz x1, core0_init       // if Core 0 jump to init system on Core 0 - all other cores fallthrough and sleep
+    
+core_sleep:
+    wfe                      // let Core Wait-For-Event
+    b core_sleep
+
+core0_init:
+    mov x24, x0             // store adress of flat Device Tree blob in callee-saved register 24
+
+    // register exception vector
+    ldr x0, =vectors
+    msr vbar_el1, x0
+    isb
+    
     // 1. FPU on
     mov x0, #3 << 20
     msr cpacr_el1, x0
@@ -37,6 +54,10 @@ _start:
     mov sp, x0
 
     // 4. jump to Swift world
+    mov x0, x24
+    mov x1, xzr // remove trash from parameter x1 for Swift kernel
+    mov x2, xzr // remove trash from parameter x1 for Swift kernel
+    mov x3, xzr // remove trash from parameter x1 for Swift kernel
     bl kmain
 
 // let the exception level 2 (EL2) work for us.
@@ -56,11 +77,4 @@ vectors:
     .balign 128
     b halt      // on error come to me (halt-label)
     .endr
-
-// --- STACK ---
-.section .bss
-.balign 16
-stack_bottom:
-    .skip 0x4000  // 16 reserve KB memory
-stack_top:
 
