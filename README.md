@@ -18,6 +18,7 @@
 Kernel <br/> with <br/><a href="https://swift.org" target="swift">Swift Programming Language</a>.
 </p>
 
+[Note regarding Swift Package Index bug](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3966)
 
 ## Dependencies
 
