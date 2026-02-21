@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: © 2026 Sebastian Ritter
 
 // --- Minimal Runtime Support ---
-// To link we need all these functions
+// To link we need all these functions because Swift, yes also Embedded Swift, is not clearly freestanding
 
 @_cdecl("memset")
 public func memset(_ s: UnsafeMutableRawPointer, _ c: Int32, _ n: Int) -> UnsafeMutableRawPointer {

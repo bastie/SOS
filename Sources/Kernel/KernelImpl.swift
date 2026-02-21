@@ -5,32 +5,66 @@
 @_extern(c, "arm_hvc_call")
 func armServiceOnExceptionLevel2(_ functionID: UInt32)
 
+/// This wfi
+@_silgen_name("wait_for_interrupt")
+func waitForInterrupt()
+
 /// This is a helper funktion (hint) for LLVM to DO NOT inline functions
 @_silgen_name("llvm.sideeffect")
 func llvmSideEffect()
 
 /// This is our **Swift** Kernel, called by boot process
+///
+/// - Note Get dtbPointerValue as UInt64 instead of UnsafeRawPointer, because in early kernel programming gets some crazy errors if nil come from Assembler stub. Over an UInt64 value I wrote some temporary debug / test code.
 @_silgen_name("kmain")
-public func main(dtbPointer: UInt64,              // x0: adresse of Device Tree Blob
-                 _ reserved1: UInt64,             // x1: Reserviert (0)
-                 _ reserved2: UInt64,             // x2: Reserviert (0)
-                 _ reserved3: UInt64              // x3: Reserviert (0)
-) {
+public func main(dtbPointerValue: UInt64,     // x0: adresse of Device Tree Blob
+                 _ reserved1:     UInt64,     // x1: Reserviert (0)
+                 _ reserved2:     UInt64,     // x2: Reserviert (0)
+                 _ reserved3:     UInt64) {   // x3: Reserviert (0)
+
   // write SOS from Swift to see this parts run correctly - debuging is for loosers
   let output = StaticString(stringLiteral: " SOS Kernel\n")
   print(content: output)
   
-  if 0 != dtbPointer{
-    // Dann erst als Pointer interpretieren
-    let ptr = UnsafeRawPointer(bitPattern: UInt(dtbPointer))!
-    // Verifizierung der Magic Number (Big Endian 0xd00dfeed)
-    let magic = ptr.load(as: UInt32.self).byteSwapped
-    if magic == 0xd00dfeed {
-      // Device Tree Header with magic value detected
-      print (content: "Device Tree found\n")
+  // check pointer value is not nil
+  if 0 != dtbPointerValue {
+    // now redefine as pointer
+    let ptr = UnsafeRawPointer(bitPattern: UInt(dtbPointerValue))!
+    var info : DTBInfo = DTBInfo()
+    // parser is nil if no valid magic number can read
+    guard var parser = DTBParser(dtbBase: ptr) else {
+      // Device Tree Header with invalid magic value detected
+      print (content:"DTB invalid!\n")
+      while true {
+        waitForInterrupt()
+      }
+    }
+    print (content: "Device Tree found\n")
+    
+    parser.parseDTB(dtbBase: ptr, into: &info)
+    print (content: "PARSE DTB erfolgreich\n")
+    
+    // print first RAM-slot over UART
+    if info.memory.offset > 0 {
+      print (content: "RAM ")
+      let ram = info.memory.region(at: 0)
+      print(content: "at adress ")
+      if ram.base > UInt32.max {
+        printHex64(content: ram.base)
+      }
+      else {
+        printHex32(content: UInt32(ram.base))
+      }
+      print(content: " size=")
+      printDec32(content: UInt32(ram.size / 1024 / 1024))
+      print(content: " MB\n")
+      
+      // → ram.base / ram.size / ram.reservations to build an allocator later
+      
+      
     }
     else {
-      print (content: "ERROR: DTB magic value not found\n")
+      print (content: "INFO: RAM not found - only stack useable!\n")
     }
   }
   else {
@@ -39,70 +73,7 @@ public func main(dtbPointer: UInt64,              // x0: adresse of Device Tree 
   
   // 🎶 Bye, bye baby - baby bye 🎶
   print (content: "Shutdown system!\n")
-  PowerAction.perform(.shutdown)
-}
-
-/// The Output type safe declaration
-enum OutputTarget {
-  // UART output
-  case UART
-}
-
-/// Print the `content` to the OutputTarget
-/// - Parameters:
-///   - content the string literal to print
-///   - to the output stream
-@inline(__always)
-func print(content : StaticString, to : OutputTarget = .UART) {
-  // content is a 0x0 terminated string like C
-  // like C we iterate over the bytes until the 0x0 tells us we are at end
-  var pointerToNextByte = content.utf8Start
-  var isStringEndReached = pointerToNextByte.pointee != 0x0
-  while isStringEndReached {
-    let nextByte = pointerToNextByte.pointee
-    writeUART(nextByte)
-    
-    pointerToNextByte = pointerToNextByte.successor()
-    isStringEndReached = pointerToNextByte.pointee != 0x0
-  }
-}
-
-/// This function write a single byte to the UART output
-/// - Parameter byte to write on UART
-@inline(__always)
-func writeUART(_ byte: UInt8) {
-  let uartBase: UInt = 0x09000000
-  let dataReg = UnsafeMutableRawPointer(bitPattern: uartBase)!
-  let flagReg = UnsafeMutableRawPointer(bitPattern: uartBase + 0x18)!
-  
-  while true {
-    let flags = flagReg.load(as: UInt32.self)
-    llvmSideEffect() // 📢 Hey LLVM, do not make an optimize with delete my kernel
-    if (flags & 0x20) == 0 {
-      break
-    }
-  }
-  
-  // writes byte
-  dataReg.storeBytes(of: UInt32(byte), toByteOffset: 0, as: UInt32.self)
-  llvmSideEffect() // 📢 Hey LLVM, do not make an optimize with delete my kernel
+  PowerActionAArch64.perform(.shutdown)
 }
 
 
-
-// type safe hardware controlling
-enum PowerAction: UInt32 {
-  // shutdown our system
-  case shutdown = 0x84000008
-  // reset our system
-  case reset    = 0x84000009
-}
-
-extension PowerAction {
-  /// Type-save function to perform an `PowerAction`
-  /// - Parameter action to perform
-  static func perform(_ action: PowerAction) {
-    // from Kernel we need to ask ARM exception level 2 (hypervisor) do power management functions
-    armServiceOnExceptionLevel2 (action.rawValue)
-  }
-}

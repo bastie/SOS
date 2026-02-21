@@ -16,6 +16,16 @@ swift build -c release --triple ${TARGET}
 SWIFT_OBJS=(
 "$(find .build -name "KernelImpl.swift.o" | head -n 1)"
 "$(find .build -name "RuntimeSupport.swift.o" | head -n 1)"
+"$(find .build -name "DTBChosenInfo.swift.o" | head -n 1)"
+"$(find .build -name "DTBEntry.swift.o" | head -n 1)"
+"$(find .build -name "DTBEntryType.swift.o" | head -n 1)"
+"$(find .build -name "DTBHead.swift.o" | head -n 1)"
+"$(find .build -name "DTBInfo.swift.o" | head -n 1)"
+"$(find .build -name "DTBParser.swift.o" | head -n 1)"
+"$(find .build -name "Memory.swift.o" | head -n 1)"
+"$(find .build -name "PowerManagement.swift.o" | head -n 1)"
+"$(find .build -name "String.swift.o" | head -n 1)"
+"$(find .build -name "UART.swift.o" | head -n 1)"
 )
 
 # compile our minimal Assembler
@@ -53,7 +63,7 @@ qemu-system-aarch64 -M virt -cpu cortex-a57 \
     -nographic -serial mon:stdio \
     -kernel .build/kernel.bin
 
-# optional
+# optional create Xcode documentation
 echo "STEP 6: create documentation ..."
 cp Package.swift .build/
 sed -i '' '/^\/\*START/d; /^END\*\//d' Package.swift

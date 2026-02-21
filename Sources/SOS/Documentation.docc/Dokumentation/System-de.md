@@ -6,6 +6,15 @@ Ein Überblick zur Systemenwicklung
 
 - <doc:System-1.0.0+-de>
 
+## Embedded bare-metal Swift
+
+- bleibe auf dem Stack solange bis du Speicher verwalten kannst
+  - keine Closures
+  - beachte Ausrichtung auf Bytegrenzen auch wenn du Datentypen in `struct`s definierst - manchmal ist ein `UInt64` besser als ein `Bool`
+  - keine Klassen
+  - nutze `inout` für komplexe Strukturen, da bei großen `struct`s diese auf dem Heap abgeglegt werden könnten 
+  - Nutze Tupel oder InlineArray
+
 ## Systemerstellung
 
 Um das System zu erstellen benötigen wir lediglich die [Swift 6 Toolchain](https://www.swift.org/install/macos/), den Clang Compiler und einen Linker. Da wir mehr Integrate-It-Yourself als DIY arbeiten, sind zudem hilfreich der QEMU zur Ausführung, Xcode zur Bearbeitung sowie zsh für Shell-Skripte.
@@ -53,6 +62,33 @@ Wir müssen zudem noch beachten, dass viele moderne Systeme mehr als einen Kern 
 
 ## Der Kernel
 
+Der Kernel nimmt als ersten Parameter einen Zeiger für den Devicetree BLOB entgegen. Damit können wir den RAM ermitteln.
+
+### Der RAM
+
+Die drei Speicherkategorien im DeviceTree:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Physischer RAM (aus /memory Node) - QEMU Beispiel  │
+│  0x40000000 ────────────────────────── 0x48000000   │
+│                                                     │
+│  ┌──────────────────────────────────────────────┐   │
+│  │ Memory Reservation Map   (offMemRsvmap)      │   │
+│  │ → Firmware, DTB selbst, Secure Monitor       │   │
+│  │ → NIEMALS anfassen, auch kein lesen!         │   │
+│  └──────────────────────────────────────────────┘   │
+│                                                     │
+│  ┌──────────────────────────────────────────────┐   │
+│  │ /reserved-memory Node                        │   │
+│  │ → no-map:  DMA-Puffer, GPU, Secure World     │   │
+│  │            physisch exklusiv, kein MMU-Map   │   │
+│  │ → reusable: nach Init freigeben möglich      │   │
+│  └──────────────────────────────────────────────┘   │
+│                                                     │
+│  ░░░░░░ Freier RAM für unseren Allocator ░░░░░░░░   │
+└─────────────────────────────────────────────────────┘
+```
 
 ## See Also
 

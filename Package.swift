@@ -13,6 +13,7 @@ let package = Package(
   // Hint for you to see the language of pseudo target
   defaultLocalization: "de",
   // it works also with .v15 and Swift 6.0 but I have both (Swift 6.2 and macOS Tahoe)
+  // with using of InlineArray instead of Tupel macOS Tahoe is required
   platforms: [.macOS(.v26)],
   dependencies: [
     // other dependencies
@@ -32,7 +33,8 @@ let package = Package(
           "-wmo",
         ]),
         .unsafeFlags([
-          "-Xfrontend", "-disable-stack-protector"
+          "-Xfrontend", "-disable-stack-protector",
+          "-Xllvm", "-relocation-model=pic",
         ]),
         .unsafeFlags([
           "-Xfrontend", "-disable-implicit-concurrency-module-import",
