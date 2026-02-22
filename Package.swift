@@ -24,6 +24,9 @@ let package = Package(
     .target(
       name: "Kernel",
       path: "Sources/Kernel",
+      // DO NOT use
+      // .unsafeFlags(["-lto=llvm-full",], .when(configuration: .release)),
+      // because kmain is remove by optimizing
       swiftSettings: [
         .enableExperimentalFeature("Embedded"),
         .enableExperimentalFeature("Extern"),

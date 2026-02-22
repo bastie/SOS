@@ -23,8 +23,7 @@ public func main(dtbPointerValue: UInt64,     // x0: adresse of Device Tree Blob
                  _ reserved3:     UInt64) {   // x3: Reserviert (0)
 
   // write SOS from Swift to see this parts run correctly - debuging is for loosers
-  let output = StaticString(stringLiteral: " SOS Kernel\n")
-  print(content: output)
+  print(" SOS Kernel")
   
   // check pointer value is not nil
   if 0 != dtbPointerValue {
@@ -34,30 +33,30 @@ public func main(dtbPointerValue: UInt64,     // x0: adresse of Device Tree Blob
     // parser is nil if no valid magic number can read
     guard var parser = DTBParser(dtbBase: ptr) else {
       // Device Tree Header with invalid magic value detected
-      print (content:"DTB invalid!\n")
+      print ("DTB invalid!")
       while true {
         waitForInterrupt()
       }
     }
-    print (content: "Device Tree found\n")
+    print ("Device Tree found")
     
     parser.parseDTB(dtbBase: ptr, into: &info)
-    print (content: "PARSE DTB erfolgreich\n")
+    print ("PARSE DTB erfolgreich")
     
     // print first RAM-slot over UART
     if info.memory.offset > 0 {
-      print (content: "RAM ")
+      print ("RAM", terminator: " ")
       let ram = info.memory.region(at: 0)
-      print(content: "at adress ")
+      print("at adress", terminator: " ")
       if ram.base > UInt32.max {
         printHex64(content: ram.base)
       }
       else {
         printHex32(content: UInt32(ram.base))
       }
-      print(content: " size=")
+      print(" size=", terminator: "")
       printDec32(content: UInt32(ram.size / 1024 / 1024))
-      print(content: " MB\n")
+      print(" MB")
       
       // → ram.base / ram.size / ram.reservations to build an allocator later
       
@@ -72,7 +71,7 @@ public func main(dtbPointerValue: UInt64,     // x0: adresse of Device Tree Blob
   }
   
   // 🎶 Bye, bye baby - baby bye 🎶
-  print (content: "Shutdown system!\n")
+  print ("Shutdown system!")
   PowerActionAArch64.perform(.shutdown)
 }
 

@@ -14,6 +14,54 @@ Ein Überblick zur Systemenwicklung
   - keine Klassen
   - nutze `inout` für komplexe Strukturen, da bei großen `struct`s diese auf dem Heap abgeglegt werden könnten 
   - Nutze Tupel oder InlineArray
+  - StaticString ist dein Freund (unveränderliche Strings gehen auch)
+
+## Swiftify
+
+### Runtime
+
+Um mit Swift ein Bare Metal System zu erstellen müssen wir einige Funktionen bereitstellen. **Swift ist nicht freestanding**; allerdings ist die minimale Implementierung trivial.    
+
+#### memset
+```
+@_cdecl("memset")
+public func memset(_ s: UnsafeMutableRawPointer, _ c: Int32, _ n: Int) -> UnsafeMutableRawPointer {
+```
+
+#### posix_memalign
+```
+@_cdecl("posix_memalign")
+public func posix_memalign(_ memptr: UnsafeMutablePointer<UnsafeMutableRawPointer?>, _ alignment: Int, _ size: Int) -> Int32 {
+```
+
+#### free
+```
+@_cdecl("free")
+public func free(_ ptr: UnsafeMutableRawPointer?) {
+```
+
+#### arc4random_buf 
+
+```
+@_cdecl("arc4random_buf")
+public func arc4random_buf(_ buf: UnsafeMutableRawPointer, _ nbytes: Int) {
+```
+
+### String
+
+Es ist grundsätzlich der *StaticString* zu bevorzugen. Dieser ist in seiner Größe fest und benötigt daher keinen Heap.
+
+#### putchar
+
+Wenn man einen *String* versucht auszugeben, ruft Swift intern die Funktion *putchar* auf und wird in einem reinen Embedded Swift einen Compilerfehler auslösen. Dieses Verhalten ist nicht zu beanstanden, denn Ausgaben im Embedded Bereich sind nicht zwingend.
+
+Durch Überschreiben der Funktion können wir jedoch eine einfache Unterstützung von print in unserem Embedded Swift erreichen, z.B. um die Ausgaben auf den UART zu leiten.
+
+```
+@_cdecl("putchar")
+public func putchar(_ char: Int32) -> Int32 {
+```
+
 
 ## Systemerstellung
 
@@ -63,6 +111,9 @@ Wir müssen zudem noch beachten, dass viele moderne Systeme mehr als einen Kern 
 ## Der Kernel
 
 Der Kernel nimmt als ersten Parameter einen Zeiger für den Devicetree BLOB entgegen. Damit können wir den RAM ermitteln.
+
+Diesen auszuwerten ermöglicht unser System <div title="Position Independent Executable (PIE)">positionsunabhängig</div> in den Speicher zu laden und Zugriff auf die (ersten) Hardwareinformationen zu bekommen.
+
 
 ### Der RAM
 

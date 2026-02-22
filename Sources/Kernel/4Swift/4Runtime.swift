@@ -17,10 +17,10 @@ public func posix_memalign(_ memptr: UnsafeMutablePointer<UnsafeMutableRawPointe
   return 12
 }
 
-// Bad future bug is "Symbol name 'free' is reserved for the Swift runtime and cannot be directly referenced without causing unpredictable behavior; this will become an error"
+// FIXME: Bad future bug is "Symbol name 'free' is reserved for the Swift runtime and cannot be directly referenced without causing unpredictable behavior; this will become an error"
 @_cdecl("free")
 public func free(_ ptr: UnsafeMutableRawPointer?) {
-  // at this moment wie dont have something todo
+  // at this moment we dont have something todo
 }
 
 @_cdecl("arc4random_buf")
