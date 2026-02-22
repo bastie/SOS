@@ -45,18 +45,10 @@ public func main(dtbPointerValue: UInt64,     // x0: adresse of Device Tree Blob
     
     // print first RAM-slot over UART
     if info.memory.offset > 0 {
-      print ("RAM", terminator: " ")
       let ram = info.memory.region(at: 0)
-      print("at adress", terminator: " ")
-      if ram.base > UInt32.max {
-        printHex64(content: ram.base)
-      }
-      else {
-        printHex32(content: UInt32(ram.base))
-      }
-      print(" size=", terminator: "")
-      printDec32(content: UInt32(ram.size / 1024 / 1024))
-      print(" MB")
+      print ("RAM at adress 0x", terminator: "")
+      print (String (ram.base, radix: 16), terminator: "")
+      print(" size=\(UInt32(ram.size / 1024 / 1024)) MB")
       
       // → ram.base / ram.size / ram.reservations to build an allocator later
       

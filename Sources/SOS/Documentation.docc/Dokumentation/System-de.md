@@ -53,14 +53,27 @@ Es ist grundsätzlich der *StaticString* zu bevorzugen. Dieser ist in seiner Gr�
 
 #### putchar
 
-Wenn man einen *String* versucht auszugeben, ruft Swift intern die Funktion *putchar* auf und wird in einem reinen Embedded Swift einen Compilerfehler auslösen. Dieses Verhalten ist nicht zu beanstanden, denn Ausgaben im Embedded Bereich sind nicht zwingend.
-
-Durch Überschreiben der Funktion können wir jedoch eine einfache Unterstützung von print in unserem Embedded Swift erreichen, z.B. um die Ausgaben auf den UART zu leiten.
-
 ```
 @_cdecl("putchar")
 public func putchar(_ char: Int32) -> Int32 {
 ```
+
+Wenn man einen *String* versucht auszugeben, ruft Swift intern die Funktion *putchar* auf und wird in einem reinen Embedded Swift einen Compilerfehler auslösen. Dieses Verhalten ist nicht zu beanstanden, denn Ausgaben im Embedded Bereich sind nicht zwingend.
+
+Durch Bereitstellen der Funktion können wir jedoch eine einfache Unterstützung von print in unserem Embedded Swift erreichen, z.B. um die Ausgaben auf den UART zu leiten.
+
+#### memmove
+
+```
+@_cdecl("memmove")
+public func memmove(_ dest: UnsafeMutableRawPointer?,
+_ src: UnsafeRawPointer?,
+_ n: Int) -> UnsafeMutableRawPointer? {
+```
+
+String Interpolation kann Swift selbst auf dem Stack für kleine Strings sicher durchführen. Damit dies funktioniert müssen aber die Speicherbereiche an den richtigen Stellen "ineinander kopiert" werden". 
+
+Durch Bereitstellen der Funktion können wir eine einfache String Interpolation von print in unserem Embedded Swift erreichen - aber Achtung bei großen Strings wird unser System sich unerwartet verhalten, weil wir den Stack verlassen und zum Heap wechseln.
 
 
 ## Systemerstellung

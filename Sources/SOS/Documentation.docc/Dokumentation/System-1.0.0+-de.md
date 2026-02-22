@@ -27,4 +27,4 @@
 
 * Der **Devicetree blob** wird (ohne Heap) geparst
 * Der **verfügbare RAM** ist bekannt
-* Swift wird nun als **Position Independent Executable (PIE)** gebaut
+* Einfache String Ausgabe und einfache String Interpolation ist realisiert.
