@@ -79,6 +79,7 @@ Durch Bereitstellen der Funktion können wir eine einfache String Interpolation 
 ## Systemerstellung
 
 Um das System zu erstellen benötigen wir lediglich die [Swift 6 Toolchain](https://www.swift.org/install/macos/), den Clang Compiler und einen Linker. Da wir mehr Integrate-It-Yourself als DIY arbeiten, sind zudem hilfreich der QEMU zur Ausführung, Xcode zur Bearbeitung sowie zsh für Shell-Skripte.
+Im Linker ergänzen wir einige Swift-Metainformationen, die wir gern in unserem Kernel behalten wollen. 
 
 Hinweis: Die Nutzung der in Xcode integrierten Toolchain ist nicht ausreichend. Die Installation der Swiftly Toolchain fügt dem Clang weitere notwendige Zielplattformen hinzu.
 

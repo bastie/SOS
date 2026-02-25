@@ -14,9 +14,42 @@ SECTIONS {
     }
     
     /* our constants */
-    .rodata : {
-      *(.rodata .rodata.*)
+    .rodata : ALIGN(16) {
+        __rodata_start = .;
+        *(.rodata .rodata.*)
+
+        . = ALIGN(8);
+        __start_swift_metadata = .;
+        
+        /* List, see Swift.def from LLVM project */
+        /* since Swift 5 the ABI is stabil. */
+        KEEP(*(.swift5_typeref))
+        KEEP(*(.swift5_fieldmd))
+        KEEP(*(.swift5_reflstr))
+        KEEP(*(.swift5_types))
+        KEEP(*(.swift5_assocty))
+        KEEP(*(.swift5_proto))
+        KEEP(*(.swift5_protos))
+        KEEP(*(.swift5_capture))
+        KEEP(*(.swift5_builtin))
+        KEEP(*(.swift5_mpenum))
+        KEEP(*(.swift5_acfuncs))
+        KEEP(*(.swift5_replace))
+        
+        __stop_swift_metadata = .;
+
+        /* Debug & Error Handling */
+        . = ALIGN(8);
+        KEEP(*(.swift_ast))
+        
+        __rodata_end = .;
     }
+    
+    /* With Swift 6: maybe 'throw' or some crashes are fatal */
+    .gcc_except_table : ALIGN(8) {
+        *(.gcc_except_table .gcc_except_table.*)
+    }
+        
     
     /* our global initialized variables */
     .data : {
