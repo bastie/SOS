@@ -71,6 +71,12 @@ wait_for_interrupt:
     wfi // wfi - wait for interrupt
     b wait_for_interrupt // You wake up? Go to wait for interrupt
 
+// return the Multiprocessor core id  
+.global _readMPIDR
+_readMPIDR:
+    mrs x0, MPIDR_EL1
+    ret
+    
 // --- EXCEPTION VECTORS ---
 .balign 2048
 vectors:

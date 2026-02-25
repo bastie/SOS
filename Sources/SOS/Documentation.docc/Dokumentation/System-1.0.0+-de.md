@@ -28,3 +28,4 @@
 * Der **Devicetree blob** wird (ohne Heap) geparst
 * Der **verfügbare RAM** ist bekannt
 * Einfache String Ausgabe und einfache String Interpolation ist realisiert.
+* ASCON Algorithmus für arc4random_buf übernommen

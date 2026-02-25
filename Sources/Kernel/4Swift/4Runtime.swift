@@ -4,13 +4,6 @@
 // --- Minimal Runtime Support ---
 // To link we need all these functions because Swift, yes also Embedded Swift, is not clearly freestanding
 
-@_cdecl("memset")
-public func memset(_ s: UnsafeMutableRawPointer, _ c: Int32, _ n: Int) -> UnsafeMutableRawPointer {
-  let p = s.assumingMemoryBound(to: UInt8.self)
-  for i in 0..<n { p[i] = UInt8(c) }
-  return s
-}
-
 @_cdecl("posix_memalign")
 public func posix_memalign(_ memptr: UnsafeMutablePointer<UnsafeMutableRawPointer?>, _ alignment: Int, _ size: Int) -> Int32 {
   // at this moment we don't have a heap and so we returns "Out of Memory" (ENOMEM = 12) zurück
@@ -23,9 +16,26 @@ public func free(_ ptr: UnsafeMutableRawPointer?) {
   // at this moment we dont have something todo
 }
 
+// MARK: memset
+@_cdecl("memset")
+public func memset(_ s: UnsafeMutableRawPointer, _ c: Int32, _ n: Int) -> UnsafeMutableRawPointer {
+  let p = s.assumingMemoryBound(to: UInt8.self)
+  for i in 0..<n { p[i] = UInt8(c) }
+  return s
+}
+
+// MARK: arc4random_buf with ASCON
+nonisolated(unsafe) private var rng = AsconRNG()
+
 @_cdecl("arc4random_buf")
 public func arc4random_buf(_ buf: UnsafeMutableRawPointer, _ nbytes: Int) {
-  let p = buf.assumingMemoryBound(to: UInt8.self)
-  // 42 is the answer
-  for i in 0..<nbytes { p[i] = 0x42 }
+  rng.fill(buf, nbytes)
+}
+
+public func initRNGSingleCore(seed: UnsafeRawPointer, seedLen: Int) {
+  rng.initSingleCore(seed: seed, seedLen: seedLen)
+}
+
+public func initRNGMultiCore(count: Int, allocate: (Int) -> UnsafeMutableRawPointer) {
+  rng.initMultiCore(count: count, allocate: allocate)
 }

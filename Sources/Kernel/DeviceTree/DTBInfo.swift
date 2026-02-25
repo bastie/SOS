@@ -8,7 +8,7 @@ struct DTBInfo {
   /// do not touch this memory or if you do it run fast!
   var reservations: ReservationMap = ReservationMap()
   // the chosen Devicetree informations
-  var chosen:  DTBChosenInfo  = DTBChosenInfo(stdoutPath: nil, initrdStart: 0, initrdEnd: 0)
+  var chosen:  DTBChosenInfo  = DTBChosenInfo(stdoutPath: nil, initrdStart: 0, initrdEnd: 0, rngSeed: nil, rngSeedLen: 0)
   // parsing information
   var _addressCells: UInt32 = 2   
   // parsing information

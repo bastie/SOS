@@ -10,5 +10,10 @@ struct DTBChosenInfo {
   var initrdStart: UInt64
   /// RAM disc end
   var initrdEnd:   UInt64
+  
+  /// Entropy seed provided by bootloader — used to seed the RNG
+  /// Points directly into DTB memory, valid as long as DTB is mapped
+  var rngSeed:     UnsafeRawPointer?
+  var rngSeedLen:  Int
 }
 

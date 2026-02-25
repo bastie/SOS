@@ -42,7 +42,17 @@ public func main(dtbPointerValue: UInt64,     // x0: adresse of Device Tree Blob
     
     parser.parseDTB(dtbBase: ptr, into: &info)
     print ("PARSE DTB erfolgreich")
-    
+
+    if let seed = info.chosen.rngSeed {
+      initRNGSingleCore(seed: seed, seedLen: info.chosen.rngSeedLen)
+      #if DEBUG
+      print ("INFO: secure random4arc_buf with ASCON")
+      #endif
+    }
+    else {
+      // fallback if DTB provides no rng-seed
+      initRNGSingleCore(seed: ptr, seedLen: 8)
+    }
     // print first RAM-slot over UART
     if info.memory.offset > 0 {
       let ram = info.memory.region(at: 0)
@@ -52,6 +62,12 @@ public func main(dtbPointerValue: UInt64,     // x0: adresse of Device Tree Blob
       
       // → ram.base / ram.size / ram.reservations to build an allocator later
       
+      // TODO: if all cores ran and heap is activated call initRNGMultiCore
+      /*
+       initRNGMultiCore(count: detectedCoreCount) { size in
+         kernelAlloc(size)
+       }
+       */
       
     }
     else {

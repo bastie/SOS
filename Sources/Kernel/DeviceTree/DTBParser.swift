@@ -208,6 +208,12 @@ struct DTBParser {
               if cstrEqual(pname, "linux,initrd-end") && plen >= 4 {
                 info.chosen.initrdEnd = plen == 8 ? beLoad64(pval) : UInt64(beLoad32(pval))
               }
+              else {
+                if cstrEqual(pname, "rng-seed") && plen > 0 {  // ← neu
+                  info.chosen.rngSeed    = pval
+                  info.chosen.rngSeedLen = Int(plen)
+                }
+              }
             }
           }
         }
